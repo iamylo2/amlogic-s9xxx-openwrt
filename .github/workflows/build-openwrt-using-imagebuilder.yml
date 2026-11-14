@@ -327,11 +327,11 @@ on:
       builder_name:
         description: "Set OpenWrt builder signature."
         required: false
-        default: "ophub"
+        default: "ylo"
         type: choice
         options:
+          - ylo
           - ophub
-          - angel
           - yourname
 
 env:
