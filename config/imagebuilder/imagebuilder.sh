@@ -209,6 +209,8 @@ rebuild_firmware() {
         dnsmasq-full -dnsmasq dropbear e2fsprogs fdisk firewall4 fstools ip-full \
         iw iwinfo jshn libustream-mbedtls losetup mtd netifd nftables openssl-util opkg \
         resize2fs ruby ruby-yaml tcpdump unzip usb-modeswitch uuidgen \
+        perl perlbase-essential perlbase-utf8 perlbase-time perlbase-xsloader \
+        perlbase-dynaloader perlbase-file perlbase-posix perlbase-io perlbase-filehandle \
         wpad-mesh-openssl wifi-scripts wwan zoneinfo-asia zoneinfo-core zstd \
         kmod-tun kmod-nft-tproxy kmod-inet-diag \
         luci-app-openclash \
