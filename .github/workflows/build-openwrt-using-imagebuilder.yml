@@ -283,22 +283,10 @@ on:
           - ztl-a568
           - zysj
       openwrt_kernel:
-        description: "Select kernel version"
+        description: "Kernel: alias (6.6.y) atau nomor pasti (6.6.124)"
         required: false
-        default: "6.12.y_6.18.y"
-        type: choice
-        options:
-          - 5.10.y
-          - 5.15.y
-          - 6.1.y
-          - 6.6.y
-          - 6.12.y
-          - 6.18.y
-          - 5.10.y_5.15.y
-          - 6.1.y_6.6.y
-          - 6.12.y_6.18.y
-          - 6.1.y_6.12.y
-          - 6.1.y_6.18.y
+        default: "6.6.y"
+        type: string
       auto_kernel:
         description: "Auto use the latest kernel"
         required: false
