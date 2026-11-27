@@ -1,0 +1,37 @@
+#!/bin/sh
+# Bootstrap sekali jalan sesudah boot pertama (dihapus otomatis oleh mekanisme
+# /etc/uci-defaults bila exit 0).
+#
+# 1. Pasang mac80211.sh versi patch. Berkas di /lib/netifd/wireless/ berasal dari
+#    paket wifi-scripts yang dipasang SETELAH overlay files/ disalin, sehingga
+#    tidak bisa ditimpa lewat overlay. Tanpa patch ini image memanggil biner
+#    `ipconfig` yang tidak ada, akibatnya `iw reg set` tidak pernah berjalan.
+# 2. Matikan ModemManager dan OpenClash. Keduanya ada di image tetapi tidak boleh
+#    hidup sampai memang dipakai (MM me-recycle antarmuka Wi-Fi).
+# 3. Lepas autoload radio internal 8189fs. Modulnya tetap ada di /root/8189fs.ko
+#    dan bisa dipasang kapan saja lewat ylo-provision.sh atau manual.
+# 4. Selaraskan /root/ylo-provision.sh agar bisa langsung dijalankan.
+
+P=/lib/netifd/wireless/mac80211.sh
+if [ -f /root/mac80211.sh.patched ] && ! cmp -s /root/mac80211.sh.patched "$P"; then
+	cp /root/mac80211.sh.patched "$P"
+	chmod 755 "$P"
+	logger -t ylo-bootstrap "mac80211.sh dipatch (ipconfig -> iw)"
+fi
+
+rm -f /etc/modules.d/8189fs
+
+/etc/init.d/modemmanager disable >/dev/null 2>&1
+/etc/init.d/modemmanager stop >/dev/null 2>&1
+/etc/init.d/openclash disable >/dev/null 2>&1
+/etc/init.d/openclash stop >/dev/null 2>&1
+uci -q set openclash.config.enable='0'
+uci -q set openclash.config.dnsmasq_server='127.0.0.1#53'
+uci -q set openclash.config.dnsmasq_noresolv='1'
+uci -q commit openclash
+
+chmod 755 /root/ylo-provision.sh /root/uplink-guard.sh 2>/dev/null
+rm -f /etc/config/wireless.bak-* /etc/config/network.bak-* 2>/dev/null
+
+logger -t ylo-bootstrap "bootstrap selesai"
+exit 0
