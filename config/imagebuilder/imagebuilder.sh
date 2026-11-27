@@ -141,6 +141,17 @@ custom_packages() {
     openclash_url="https://github.com/vernesong/OpenClash/releases/download/v0.48.002/luci-app-openclash_0.48.002_all.ipk"
     curl -fsSLO "${openclash_url}" && echo -e "${INFO} OpenClash ipk berhasil diunduh."
 
+    # ylo-wrt: biner statis Ookla speedtest untuk diagnostik uplink
+    mkdir -p "${custom_files_path}/usr/bin"
+    if curl -fsSL "https://install.speedtest.net/app/cli/ookla-speedtest-1.2.0-linux-aarch64.tgz" -o /tmp/ookla.tgz; then
+        tar -xzf /tmp/ookla.tgz -C /tmp speedtest
+        cp /tmp/speedtest "${custom_files_path}/usr/bin/speedtest"
+        chmod 755 "${custom_files_path}/usr/bin/speedtest"
+        echo -e "${INFO} Ookla speedtest ditanam di files/usr/bin/speedtest"
+    else
+        echo -e "${ERROR} Gagal mengunduh Ookla speedtest"
+    fi
+
     # Remove the packages that are not needed based on the Image Builder type (APK or OPKG)
     if grep -q "CONFIG_USE_APK=y" ../.config; then
         echo -e "${INFO} APK-based ImageBuilder detected. Removing .ipk files..."
@@ -205,22 +216,44 @@ rebuild_firmware() {
 
     # Selecting default packages, lib, theme, app and i18n, etc.
     my_packages="\
-        base-files bash block-mount blockd busybox ca-bundle coreutils-nohup curl \
+        base-files bash blkid block-mount blockd btrfs-progs busybox ca-bundle curl \
         dnsmasq-full -dnsmasq dropbear e2fsprogs fdisk firewall4 fstools ip-full \
-        iw iwinfo jshn libustream-mbedtls losetup mtd netifd nftables openssl-util opkg \
-        resize2fs ruby ruby-yaml tcpdump unzip usb-modeswitch uuidgen \
+        iw iwinfo jshn libustream-mbedtls logd losetup mtd netifd nftables openssl-util \
+        opkg parted procd resize2fs tc-tiny tcpdump unzip usbutils uuidgen zstd \
+        zoneinfo-asia zoneinfo-core \
+        \
+        kmod-fs-btrfs kmod-fs-vfat kmod-fs-autofs4 \
+        kmod-nls-cp437 kmod-nls-iso8859-1 kmod-nls-utf8 \
+        kmod-tun kmod-nft-tproxy kmod-nft-nat kmod-nft-offload kmod-nft-fib \
+        kmod-nf-flow kmod-inet-diag kmod-br-netfilter \
+        \
+        wpad-mesh-openssl wifi-scripts hostapd-common \
+        \
+        kmod-usb-net-rtl8152 kmod-usb-net-cdc-ether \
+        kmod-usb-net-cdc-ncm kmod-usb-net-huawei-cdc-ncm \
+        kmod-usb-serial kmod-usb-serial-option kmod-usb-serial-wwan kmod-usb-wdm \
+        usb-modeswitch usbids chat comgt comgt-ncm wwan ppp ppp-mod-pppoe \
+        modemmanager luci-proto-modemmanager luci-proto-ncm luci-proto-ppp \
+        libmbim libqmi sms-tool \
+        \
         perl perlbase-essential perlbase-utf8 perlbase-time perlbase-xsloader \
         perlbase-dynaloader perlbase-file perlbase-posix perlbase-io perlbase-filehandle \
-        wpad-mesh-openssl wifi-scripts wwan zoneinfo-asia zoneinfo-core zstd \
-        kmod-tun kmod-nft-tproxy kmod-inet-diag \
+        ruby ruby-yaml openssh-sftp-server \
+        \
+        sqm-scripts luci-app-sqm adguardhome tailscale \
+        snmpd-nossl luci-app-snmpd vnstat2 vnstati2 luci-app-vnstat2 \
+        ttyd luci-app-ttyd netdata etherwake luci-app-wol \
+        iperf3 mtr-json htop iftop nano \
+        \
+        luci luci-base luci-compat luci-mod-admin-full luci-mod-network \
+        luci-mod-status luci-mod-system luci-ssl luci-theme-bootstrap \
+        luci-app-package-manager luci-lib-base luci-lib-ip luci-lib-jsonc \
+        luci-lib-nixio lua luci-lua-runtime \
+        \
         luci-app-openclash \
         \
-        luci luci-base luci-compat luci-lib-base luci-lib-ip luci-lib-jsonc luci-lib-nixio \
-        luci-mod-admin-full luci-mod-network luci-mod-status luci-mod-system \
-        luci-proto-ipv6 luci-proto-ncm luci-proto-ppp luci-ssl \
-        \
         ${config_list} \
-        "
+"
 
     # Rebuild firmware
     make image PROFILE="" PACKAGES="${my_packages}" FILES="files"

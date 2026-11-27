@@ -1,0 +1,6 @@
+# Put your custom commands here that should be executed once
+# the system init finished. By default this file does nothing.
+
+[ -f /etc/custom_service/start_service.sh ] && bash /etc/custom_service/start_service.sh &
+[ -w /sys/module/rtw88_core/parameters/disable_lps_deep ] && echo Y > /sys/module/rtw88_core/parameters/disable_lps_deep
+exit 0

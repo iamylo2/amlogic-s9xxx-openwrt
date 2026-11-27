@@ -1,0 +1,17 @@
+#!/bin/sh
+# Pemicu saat dongle Wi-Fi USB mendaftar di bus USB.
+# Semua logika ada di /root/uplink-guard.sh supaya hotplug dan cron memakai
+# jalur kode yang sama.
+#   2357:010c = TP-Link TL-WN722N v2/v3 (RTL8188EUS, rtl8xxxu)
+#   0bda:b812 = dongle RTL8822BU (rtw88_8822bu)
+case "$PRODUCT" in
+2357/10c/*|0bda/b812/*) ;;
+*) exit 0 ;;
+esac
+[ "$ACTION" = "add" ] || exit 0
+
+# JANGAN panggil wifi/netifd dari handler remove: event remove ikut muncul saat
+# shutdown sehingga reboot bisa menggantung.
+
+sleep 5
+[ -x /root/uplink-guard.sh ] && exec /root/uplink-guard.sh

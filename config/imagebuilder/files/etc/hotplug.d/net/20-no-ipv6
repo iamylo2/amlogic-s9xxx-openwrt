@@ -1,0 +1,7 @@
+#!/bin/sh
+# Interface baru (dongle/modem) ikut dimatikan IPv6-nya.
+# lo dikecualikan karena ::1 dipakai daemon yang bind '::' (AdGuard, Clash).
+# tailscale0 dikecualikan karena alamat fd7a:... adalah jalur manajemen.
+[ "$ACTION" = "add" ] || exit 0
+case "$DEVICENAME" in lo|tailscale0) exit 0;; esac
+sysctl -qw net.ipv6.conf.$DEVICENAME.disable_ipv6=1 2>/dev/null

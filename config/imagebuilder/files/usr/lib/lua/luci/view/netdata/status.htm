@@ -1,0 +1,8 @@
+<%+header%>
+<h2 name="content">Netdata</h2>
+<p class="cbi-section-descr">Dasbor Netdata pada port 19999. Host mengikuti alamat yang dipakai membuka LuCI, bukan IP tetap.</p>
+<iframe id="ndframe" style="width:100%;height:80vh;border:1px solid #ccc"></iframe>
+<script type="text/javascript">
+	document.getElementById('ndframe').src = location.protocol + '//' + location.hostname + ':19999';
+</script>
+<%+footer%>
